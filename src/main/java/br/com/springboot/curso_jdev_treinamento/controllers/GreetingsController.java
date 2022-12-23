@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -55,10 +56,26 @@ public class GreetingsController {
     }
     @PostMapping(value = "salvar")//mapeia a url
     @ResponseBody//Descrição da resposta
-    public ResponseEntity<Usuario> salvar( @RequestBody Usuario usuario ){
+    public ResponseEntity<Usuario> save( @RequestBody Usuario usuario ){
     	Usuario user = usuarioRepository.save(usuario);
     	return new ResponseEntity<Usuario>(user, HttpStatus.CREATED);
     }
+    
+    @PutMapping(value = "update")//mapeia a url
+    @ResponseBody//Descrição da resposta
+    public ResponseEntity<?> update( @RequestBody Usuario usuario ){
+    	
+    	if(usuario.getId() == null) {
+    		return new ResponseEntity<String>("User not found", HttpStatus.NOT_FOUND);
+    	}
+    	Usuario user = usuarioRepository.saveAndFlush(usuario);
+    	
+    	return new ResponseEntity<Usuario>(user, HttpStatus.OK);
+    }
+    
+    
+    
+    
     
     @DeleteMapping(value = "delete")//mapeia a url
     @ResponseBody//Descrição da resposta
@@ -66,6 +83,15 @@ public class GreetingsController {
     	usuarioRepository.deleteById(idUser);
     	
     	return new ResponseEntity<String>("User deleted successfully", HttpStatus.OK);
+  
+    }
+    
+    @GetMapping(value = "findbyid")//mapeia a url
+    @ResponseBody//Descrição da resposta
+    public ResponseEntity<Usuario> findById( @RequestParam (name = "idUser") Long idUser ){
+    	Usuario usuario = usuarioRepository.findById(idUser).get();
+    	
+    	return new ResponseEntity<Usuario>(usuario, HttpStatus.OK);
   
     }
     
