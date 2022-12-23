@@ -1,5 +1,6 @@
 package br.com.springboot.curso_jdev_treinamento.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,14 +48,14 @@ public class GreetingsController {
     }
     
     
-    @GetMapping(value = "listatodos")//Anotação que 'cria' o caminho do end-point. por ex: http://localhost:8000/listatodos
+    @GetMapping(value = "listall")//Anotação que 'cria' o caminho do end-point. por ex: http://localhost:8000/listatodos
     @ResponseBody //Retorna os dados para o corpo da resposta
-    public ResponseEntity<List<Usuario>> listarUsuarios(){
+    public ResponseEntity<List<Usuario>> listAllUsers(){
     	List<Usuario> usuarios =  usuarioRepository.findAll();//Busca todos usuarios no banco
     	
     	return new ResponseEntity<List<Usuario>>(usuarios, HttpStatus.OK);//Retorna um JSON
     }
-    @PostMapping(value = "salvar")//mapeia a url
+    @PostMapping(value = "save")//mapeia a url
     @ResponseBody//Descrição da resposta
     public ResponseEntity<Usuario> save( @RequestBody Usuario usuario ){
     	Usuario user = usuarioRepository.save(usuario);
@@ -66,16 +67,12 @@ public class GreetingsController {
     public ResponseEntity<?> update( @RequestBody Usuario usuario ){
     	
     	if(usuario.getId() == null) {
-    		return new ResponseEntity<String>("User not found", HttpStatus.NOT_FOUND);
+    		return new ResponseEntity<String>("Id not informed", HttpStatus.NOT_FOUND);
     	}
     	Usuario user = usuarioRepository.saveAndFlush(usuario);
     	
     	return new ResponseEntity<Usuario>(user, HttpStatus.OK);
-    }
-    
-    
-    
-    
+    }  
     
     @DeleteMapping(value = "delete")//mapeia a url
     @ResponseBody//Descrição da resposta
@@ -92,7 +89,16 @@ public class GreetingsController {
     	Usuario usuario = usuarioRepository.findById(idUser).get();
     	
     	return new ResponseEntity<Usuario>(usuario, HttpStatus.OK);
-  
+    }
+    
+    @GetMapping(value = "findbyname")
+    @ResponseBody
+    public ResponseEntity<List<Usuario>> findByName( @RequestParam (name = "name")String name){
+    	
+    	List<Usuario> usersfind = usuarioRepository.findByName(name.trim().toUpperCase());
+    	
+    	return new ResponseEntity<List<Usuario>>(usersfind, HttpStatus.OK);
+    	
     }
     
 
