@@ -3,61 +3,170 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
-	 <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+<!-- Bootstrap CSS -->
+<link
+	href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
+	crossorigin="anonymous">
 
 </head>
 <body>
 	<h3>Teste Spring boot</h3>
-	
+
 	<form action="" id="formCreateUser">
 		<div class="mb-3">
-			<label for="id" class="form-label">ID</label> 
-			<input type="text" class="form-control" id="id" readonly="readonly">
+			<label for="id" class="form-label">ID</label> <input type="text"
+				class="form-control" id="id" readonly="readonly">
 		</div>
-		
+
 		<div class="mb-3">
-			<label for="nome" class="form-label">Nome do usuário</label>
+			<label for="nome" class="form-label">Nome do usuário</label> 
 			<input type="text" class="form-control" id="nome" placeholder="Informe o nome" required="required">
 		</div>
-		
+
 		<div class="mb-3">
-			<label for="idade" class="form-label">Idade</label>
-			<input type="number" class="form-control" id="idade">
+			<label for="idade" class="form-label">Idade</label> 
+			<input type="number" class="form-control" id="idade" required="required">
 		</div>
 
 	</form>
-	
-	<button type="button" class="btn btn-primary" onclick="saveUser()" >Salvar</button>
-	<button type="button" class="btn btn-secondary" onclick="document.getElementById('formCreateUser').reset()">Novo</button>
-	
-	<script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
-	 
-	 <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-	
+
+	<button type="button" class="btn btn-primary" onclick="saveUser()">Salvar</button>
+	<button type="button" class="btn btn-secondary"
+		onclick="document.getElementById('formCreateUser').reset()">Novo</button>
+	<button type="button" class="btn btn-info" data-bs-toggle="modal"
+		data-bs-target="#modalSearchUser">Pesquisar</button>
+
+	<div class="modal fade" id="modalSearchUser" tabindex="-1"
+		aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="exampleModalLabel">Pesquisa de
+						usuário</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal"
+						aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<form>
+						<div class="mb-3">
+							<label for="searchName" class="col-form-label">Informe o nome:</label> <input type="text" class="form-control" id="searchName">
+						</div>
+						<button type="button" class="btn btn-success" onclick="searchUser()">Buscar</button>
+					</form>
+
+					<table class="table" id="tableResults">
+						<thead>
+							<tr>
+								<th scope="col">Id</th>
+								<th scope="col">Nome</th>
+								<th scope="col">Idade</th>
+								<th scope="col">Editar</th>
+							</tr>
+						</thead>
+						<tbody>
+							
+						</tbody>
+					</table>
+
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-bs-dismiss="modal">Fechar</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<script src="https://code.jquery.com/jquery-3.6.3.min.js"
+		integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
+		crossorigin="anonymous"></script>
+
+	<!-- Option 1: Bootstrap Bundle with Popper -->
+	<script
+		src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+		integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+		crossorigin="anonymous"></script>
+
 	<script type="text/javascript">
-		function  saveUser(){
-			let id = $("#id").val();
+	
+		function searchUser(){
+			let nome = $("#searchName").val();
 			
-			let nome = $("#nome").val();
-			
-			let idade = $("#idade").val();
-			
+			if(nome != null && nome.trim() != ''){
+				$.ajax({
+					method : "GET",
+					url : "findbyname",
+					data : "name=" + nome,
+					contentType : "application/json; charset=utf-8",
+					success : function(response) {
+						$("#tableResults > tbody > tr").remove();
+						
+						for(var i = 0; i < response.length; i++){
+							$("#tableResults > tbody").append('<tr><td>'+response[i].id+'</td> <td>'+ response[i].nome +
+									'</td> <td>' + response[i].idade+'</td> <td>  <button type="button" class="btn btn-primary" onclick="edit('+response[i].id+')" >Editar</button>  </td>  </tr>');
+						}
+					}
+				}).fail(function(xhr, status, errorThrown) {
+					alert("Erro ao buscar " + xhr.responseText);
+				});
+				
+			}
+		}
+	
+		function edit(id){
 			$.ajax({
-				method: "POST",
-				url: "save",
-				data: JSON.stringify({id: id, nome: nome, idade: idade}),
-				contentType: "application/json; charset=utf-8",
-				success: function (response){
+				method : "GET",
+				url : "findbyid",
+				data : "idUser=" + id,
+				contentType : "application/json; charset=utf-8",
+				success : function(response) {
 					$("#id").val(response.id);
-					alert ("Salvo com sucesso!");
+					$("#nome").val(response.nome);
+					$("#idade").val(response.idade);
+					
+					$('#modalSearchUser').modal('hide');
 				}
-			}).fail(function (xhr, status, errorThrown){
-				alert("Erro ao salvar " + xhr.responseText);
+			}).fail(function(xhr, status, errorThrown) {
+				alert("Erro ao buscar usuário por id " + xhr.responseText);
 			});
+		}
+	
+	
+		function saveUser() {
+			let id = $("#id").val();
+
+			let nome = $("#nome").val();
+
+			let idade = $("#idade").val();
+
+			if(nome != null && nome.trim() != '' && idade != ''){
+				$.ajax({
+					method : "POST",
+					url : "save",
+					data : JSON.stringify({
+						id : id,
+						nome : nome,
+						idade : idade
+					}),
+					contentType : "application/json; charset=utf-8",
+					success : function(response) {
+						$("#id").val(response.id);
+						alert("Salvo com sucesso!");
+					}
+				}).fail(function(xhr, status, errorThrown) {
+					alert("Erro ao salvar " + xhr.responseText);
+				});
+				
+			}else{
+				alert("Campos inválidos")
+			}
 			
-			
+
+
 		}
 	</script>
 </body>
