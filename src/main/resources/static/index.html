@@ -9,10 +9,12 @@
 	rel="stylesheet"
 	integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
 	crossorigin="anonymous">
+	
+	<link rel="stylesheet" type="text/css" href="style.css">
 
 </head>
 <body>
-	<h3>Teste Spring boot</h3>
+	<h3>CRUD com Spring boot</h3>
 
 	<form action="" id="formCreateUser">
 		<div class="mb-3">
@@ -31,12 +33,14 @@
 		</div>
 
 	</form>
-
-	<button type="button" class="btn btn-primary" onclick="saveUser()">Salvar</button>
-	<button type="button" class="btn btn-secondary"
-		onclick="document.getElementById('formCreateUser').reset()">Novo</button>
-	<button type="button" class="btn btn-info" data-bs-toggle="modal"
-		data-bs-target="#modalSearchUser">Pesquisar</button>
+	<div class="botoesTelaPrincipal">
+		<button type="button" class="btn btn-primary" onclick="saveUser()">Salvar</button>
+		<button type="button" class="btn btn-secondary"
+			onclick="document.getElementById('formCreateUser').reset()">Novo</button>
+		<button type="button" class="btn btn-info" data-bs-toggle="modal"
+			data-bs-target="#modalSearchUser">Pesquisar</button>
+		<button type="button" class="btn btn-warning" onclick=deleteUserOnScreenMain()>Deletar</button>
+	</div>
 
 	<div class="modal fade" id="modalSearchUser" tabindex="-1"
 		aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -55,20 +59,21 @@
 						</div>
 						<button type="button" class="btn btn-success" onclick="searchUser()">Buscar</button>
 					</form>
+					<div class="tabela">
+						<table class="table" id="tableResults">
+							<thead>
+								<tr>
+									<th scope="col">Id</th>
+									<th scope="col">Nome</th>
+									<th scope="col">Idade</th>
+									<th scope="col">Editar</th>
+									<th scope="col">Deletar</th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
 
-					<table class="table" id="tableResults">
-						<thead>
-							<tr>
-								<th scope="col">Id</th>
-								<th scope="col">Nome</th>
-								<th scope="col">Idade</th>
-								<th scope="col">Editar</th>
-							</tr>
-						</thead>
-						<tbody>
-							
-						</tbody>
-					</table>
 
 				</div>
 				<div class="modal-footer">
@@ -106,8 +111,9 @@
 						$("#tableResults > tbody > tr").remove();
 						
 						for(var i = 0; i < response.length; i++){
-							$("#tableResults > tbody").append('<tr><td>'+response[i].id+'</td> <td>'+ response[i].nome +
-									'</td> <td>' + response[i].idade+'</td> <td>  <button type="button" class="btn btn-primary" onclick="edit('+response[i].id+')" >Editar</button>  </td>  </tr>');
+							$("#tableResults > tbody").append('<tr id='+response[i].id+'><td>'+response[i].id+'</td> <td>'+ response[i].nome +
+									'</td> <td>' + response[i].idade+'</td> <td>  <button type="button" class="btn btn-primary" onclick="edit('+response[i].id+
+									')" >Editar</button></td><td><button type="button" class="btn btn-danger" onclick="deleteUser('+response[i].id+')">Deletar</button></td>  </tr>');
 						}
 					}
 				}).fail(function(xhr, status, errorThrown) {
@@ -135,7 +141,36 @@
 			});
 		}
 	
-	
+
+		function deleteUser(id) {
+
+			if (confirm('Deseja realmente deletar este usuário?')) {
+
+				$.ajax({
+					method : "DELETE",
+					url : "delete",
+					data : "idUser=" + id,
+					success : function(response) {
+						$('#' + id).remove();
+						alert(response)
+					}
+				}).fail(
+						function(xhr, status, errorThrown) {
+							alert("Erro ao deletar usuário por id "
+									+ xhr.responseText);
+						});
+
+			}
+		}
+		
+		function deleteUserOnScreenMain(){
+			let id = $('#id').val();
+			if(id != null && id.trim() !=''){
+				deleteUser(id);
+				document.getElementById('formCreateUser').reset();
+			}
+		}
+
 		function saveUser() {
 			let id = $("#id").val();
 
@@ -143,7 +178,7 @@
 
 			let idade = $("#idade").val();
 
-			if(nome != null && nome.trim() != '' && idade != ''){
+			if (nome != null && nome.trim() != '' && idade != '') {
 				$.ajax({
 					method : "POST",
 					url : "save",
@@ -160,12 +195,10 @@
 				}).fail(function(xhr, status, errorThrown) {
 					alert("Erro ao salvar " + xhr.responseText);
 				});
-				
-			}else{
+
+			} else {
 				alert("Campos inválidos")
 			}
-			
-
 
 		}
 	</script>
